@@ -2,18 +2,17 @@
 
 import random
 import numpy as np
+from numpy import linalg as LA
 
 # Picking a the index randomly
 def pick_index(n):
     return random.choice(list(range(n)))
 
-# Computing Kappa simplification
-def kappa_sum(basis,vector,mean,index):
-    x = np.delete(vector, index)
-    mu = np.delete(mean, index)
-    return np.sum((basis.cdot(x)-mu)**2)
+# Computing the exponentiated sum. Based on the chose index and a given value for that index.
+def simple_sum(basis,vector,mean,index,var_val):
+    new_vec = np.put(vector,[index],[var_val])
+    x = np.dot(basis,new_vec) - mean
+    return LA.norm(x)
 
-# Computing normalisation coefficient
-def normalisation(basis,vector,mean,index,variance):
-    kappa = kappa_sum(basis,vector,mean,index)
-
+# Normalisation constant computation
+def norm_con(basis,vector,mean,index,sd):
