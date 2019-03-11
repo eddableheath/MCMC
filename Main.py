@@ -1,5 +1,7 @@
 '''Modelling the Gibbs Sampler to Measure the Autocorrelation'''
-
+import numpy as np
+import Functions as Fn
+import  GibbsUpdaters as GU
 
 
 # Test data
