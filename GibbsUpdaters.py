@@ -70,7 +70,7 @@ def gibbs(basis,dimension,vector,mean,variance,cutoff,total_run,update_strategy)
         for i in range(1,total_run):
             new_vec = RSGS(basis,dimension,data[i-1][1],mean,variance,cutoff)
             np.ndarray.tolist(new_vec)
-            data.append([i,new_vec])
+            data.append([i, new_vec])
 
     if update_strategy == 'DUGS':
         for i in range(1,total_run):

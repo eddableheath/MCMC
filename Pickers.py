@@ -11,7 +11,7 @@ def pick_mean(dimension):
 
 
 # Picking initial point for gibbs sampler: Uniform random within a certain number of SD from mean
-def pick_iniital(basis, dimension, mean, var, cutoff_param):
+def pick_inital(basis, dimension, mean, var, cutoff_param):
     init = np.around(mean)
     vector = []
     for i in range(dimension):
@@ -23,7 +23,7 @@ def pick_iniital(basis, dimension, mean, var, cutoff_param):
             k += 1
         ''' Descending from mean '''
         l = round(mean[i]) - 1
-        while Fn.tail_cutoff(basis, init, k, i, mean, var, cutoff_param, 1):
+        while Fn.tail_cutoff(basis, init, l, i, mean, var, cutoff_param, 0):
             points.append(l)
             l -= 1
         vector.append(np.random.choice(points))
@@ -42,6 +42,6 @@ m = pick_mean(4)
 v = 1
 cutoff = 15
 
-print(m)
-print(pick_iniital(b, 4, m, v, cutoff))
+#print(m)
+#print(pick_iniital(b, 4, m, v, cutoff))
 

@@ -1,22 +1,28 @@
 '''Modelling the Gibbs Sampler to Measure the Autocorrelation'''
 import numpy as np
 import Functions as Fn
-import  GibbsUpdaters as GU
+import GibbsUpdaters as GU
+import Bases as B
+import Pickers as Pi
 
 
 # Test data
-b = np.array([[1, 0, 0, 0],
-              [0, 1, 0, 0],
-              [0, 0, 1, 0],
-              [0, 0, 0, 1]])
-v = np.array([4, -7, 8, -2])
-m = np.array([0.5, 0.5, 0, 3])
-var = 0.4
-cutoff = 15
+basis = B.B3
+dim = 2
+mu = Pi.pick_mean(2)
+var = 1
+init = Pi.pick_inital(basis, 2, mu, var, 15)
 
-np.ndarray.tolist(v)
-print(v)
-
-print(gibbs(b,4,v,m,var,cutoff,5))
-
-
+print('Mean:')
+print(mu)
+print('Initial vector:')
+print(init)
+#print('Gibbs: ')
+#print(GU.gibbs(B.B3, 2, init, mu, var, 15, 10, 'RSGS'))
+print('test:')
+a1 = GU.DUGS(basis, dim, init, mu, var, 15)
+print(a1)
+a2 = GU.DUGS(basis, dim, a1, mu, var, 15)
+print(a2)
+a3 = GU.DUGS(basis, dim, a2, mu, var, 15)
+print(a3)
