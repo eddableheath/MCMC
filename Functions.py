@@ -3,6 +3,7 @@
 import random
 import numpy as np
 import math
+import copy
 
 # Picking a the index randomly
 '''Actually kind of uncessary, but keeping this as a note for later'''
@@ -25,37 +26,32 @@ def simple_sum(basis, vector, mean, index, var_val):
 
 
 # Tail cut off check;
-def tail_cutoff(basis, vector, value, index, mean, variance, cutoff_param, direction):
-    np.put(vector, [index], [value])
-    alpha = np.dot(basis, vector)
-    ''' direction = 1 for ascending and 0 for descending '''
-    if direction == 1:
-        if alpha[index] <= (mean[index] + (cutoff_param * variance)):
-            return True
-        else:
-            return False
-    elif direction == 0:
-        if alpha[index] >= (mean[index] - (cutoff_param * variance)):
-            return True
-        else:
-            return False
+def tail_cutoff(basis, vector, value, index, mean, variance, cutoff_param):
+    new_vec = copy.copy(vector)
+    np.put(new_vec, [index], [value])
+    alpha = np.dot(basis, new_vec)
+    lower = (mean[index] - (cutoff_param * variance))
+    upper = (mean[index] + (cutoff_param * variance))
+    if alpha[index] >= lower and alpha[index] <= upper:
+        return True
     else:
-        print('Choose a direction, 0 - descending, 1 ascending')
+        return False
 
 
 # Normalisation constant computation
 def norm_con(basis, vector, mean, index, sd, cutoff_param):
     total = 0
+    init = np.around(np.linalg.solve(basis, mean))
     ''' Ascending from the mean '''
-    k = round(mean[index])
-    while tail_cutoff(basis, vector, k, index, mean, sd, cutoff_param, 1):
+    k = init[index]
+    while tail_cutoff(basis, vector, k, index, mean, sd, cutoff_param):
         total += math.exp(-(1/(2*(sd**2)))*simple_sum(basis, vector, mean, index, k))
         k += 1
     ''' Descending from Mean '''
-    l = round(mean[index]) - 1
-    while tail_cutoff(basis, vector, l, index, mean, sd, cutoff_param, 0):
-        total += math.exp(-(1/(2*(sd**2)))*simple_sum(basis, vector, mean, index, l))
-        l -= 1
+    j = init[index] - 1
+    while tail_cutoff(basis, vector, j, index, mean, sd, cutoff_param):
+        total += math.exp(-(1/(2*(sd**2)))*simple_sum(basis, vector, mean, index, j))
+        j -= 1
     return total
 
 
@@ -65,20 +61,30 @@ def norm_con(basis, vector, mean, index, sd, cutoff_param):
 def prob_gen(basis, vector, mean, index, sd, cutoff_param):
     # compute the normalisation constant from the distribution
     N = norm_con(basis, vector, mean, index, sd, cutoff_param)
+    init = np.around(np.linalg.solve(basis, mean))
     # initialising numpy array (0 vector as slightly bodge)
     dist = [[0, 0]]
     ''' Ascending from the mean '''
-    k = round(mean[index])
-    while tail_cutoff(basis, vector, k, index, mean, sd, cutoff_param, 1):
+    k = init[index]
+    while tail_cutoff(basis, vector, k, index, mean, sd, cutoff_param):
         Pk = (math.exp(-(1/(2*(sd**2)))*simple_sum(basis, vector, mean, index, k)))/N
         dist.append([k, Pk])
         k += 1
     ''' Descending from the mean '''
-    l = round(mean[index])-1
-    while tail_cutoff(basis, vector, l, index, mean, sd, cutoff_param, 0):
-        Pl = (math.exp(-(1/(2*(sd**2)))*simple_sum(basis, vector, mean, index, l)))/N
-        dist.append([l, Pl])
-        l -= 1
+    j = init[index] - 1
+    while tail_cutoff(basis, vector, j, index, mean, sd, cutoff_param):
+        Pl = (math.exp(-(1/(2*(sd**2)))*simple_sum(basis, vector, mean, index, j)))/N
+        dist.append([j, Pl])
+        j -= 1
     del dist[0]
     distro = np.array(dist)
     return distro
+
+
+def autocorrelate(x):
+    """ Autocorrelation of a set """
+
+    results = np.correlate(x, x, mode='full')
+    return results[results.size // 2]
+
+

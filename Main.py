@@ -1,28 +1,47 @@
 '''Modelling the Gibbs Sampler to Measure the Autocorrelation'''
 import numpy as np
-import Functions as Fn
-import GibbsUpdaters as GU
-import Bases as B
-import Pickers as Pi
+import Functions as fn
+import GibbsUpdaters as gu
+import Pickers as pi
+import math
+import copy
 
 
-# Test data
-basis = B.B3
-dim = 2
-mu = Pi.pick_mean(2)
+# Test data, A2 basis
+#rt3 = math.sqrt(3)
+b = np.array([[1/2, math.sqrt(3)/2],
+              [1/2, -math.sqrt(3)/2]])
+balt = np.array([[1, 0],
+                 [0, 1]])
 var = 1
-init = Pi.pick_inital(basis, 2, mu, var, 15)
+cutoff = 15
+m = pi.pick_mean(2)
+v = pi.pick_inital(b, 2, m, var, cutoff)
 
-print('Mean:')
-print(mu)
-print('Initial vector:')
-print(init)
-#print('Gibbs: ')
-#print(GU.gibbs(B.B3, 2, init, mu, var, 15, 10, 'RSGS'))
-print('test:')
-a1 = GU.DUGS(basis, dim, init, mu, var, 15)
-print(a1)
-a2 = GU.DUGS(basis, dim, a1, mu, var, 15)
-print(a2)
-a3 = GU.DUGS(basis, dim, a2, mu, var, 15)
-print(a3)
+# print(m)
+# print(v)
+# print(gu.gibbs(b, 2, v, m, var, cutoff, 5, 'DUGS'))
+
+
+results = []
+gibbs_data = gu.gibbs(b, 2, v, m, var, cutoff, 5, 'DUGS')
+x_results = []
+y_results = []
+
+
+# Formatting data for autocorrelation results
+for datapoint in gibbs_data:
+    x_results.append(datapoint[1][0])
+    y_results.append(datapoint[1][1])
+    good_x = copy.copy(x_results)
+    good_y = copy.copy(y_results)
+    results.append([datapoint[0], good_x, good_y])
+
+# final data
+final_results = []
+for result in results:
+    final_results.append([result[0],
+                         fn.autocorrelate(result[1]),
+                         fn.autocorrelate(result[2])])
+
+print(final_results)
