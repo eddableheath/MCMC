@@ -2,6 +2,7 @@
 
 import numpy as np
 import math
+import copy
 import random as rn
 import pandas as pd
 
@@ -54,14 +55,18 @@ def IntSum(basis, mean, var, cutoff, index, tilde, r):
     mu = np.linalg.solve(basis, mean)
     altvar = var/(r[index][index])
     j = np.around(mu)[index]
+    check = []
     while OneDCutoffCheck(mu, var, cutoff, index, j):
         total += GaussOne(j, altvar, tilde[index])
+        check.append([j, GaussOne(j, altvar, tilde[index])])
         j += 1
     k = np.around(mu)[index] - 1
     while OneDCutoffCheck(mu, var, cutoff, index, k):
         total += GaussOne(k, altvar, tilde[index])
+        check.append([k,GaussOne(k, altvar, tilde[index])])
         k -= 1
-    return total
+
+    return total, check
 
 
 def IntProd(basis, mean, var, cutoff, tilde, r):
@@ -82,9 +87,89 @@ def acceptance(basis, mean, var, cutoff, q, r, oldvec, newvec):
     denom = IntProd(basis, mean, var, cutoff, oldvectilde, r)
     return min(1, (num/denom))
 
+def create_lattice_and_indices(n_dim, extent):
+    # This is a simple 1D lattice, can extend to more dimensions by simply iterating
+    lattice = np.arange(-extent, extent)
+    lattice = np.asarray([lattice for _ in range(n_dim)]).T
+    # Creating array of indices
+    indices = np.arange(0, 2 * extent)
+    indices = np.asarray([indices for _ in range(n_dim)]).T
+    return indices, lattice
+
+def transform_lattice(lattice, basis):
+    n_dim = len(lattice)
+
+    for 
+    for index, point in enumerate( lattice ):
+
+
+def distance(lattice, norm = 2):
+    # Norm is just how you want to define your distance
+    # e.g norm = 1 is 'city block' distance, moves in integer amounts
+    #     norm = 2 is standard distance from a point.
+    n_dim = len(lattice)
+    extended_shape = ( lattice.shape[0], 1, *lattice.shape[1:] )
+
+    print("lattice shape", lattice.shape)
+    diff = lattice.reshape( *extended_shape ) - lattice
+    print("difference shape", diff.shape)
+    distance = (diff ** norm).sum(2)
+    print("distance shape", distance.shape)
+
+    return distance
+
+def points_in_range(lattice, distance, r_cut):
+    # Create array of zeros and then assign values in the lattice.
+    points = np.zeros(lattice.shape)
+    range_condition = distance < r_cut
+    points[range_condition] = lattice[ range_condition ]
+    # The below function isn't quite right probably but you could look up the where function to find the indices
+    indices = np.where( distance[ range_condition ] )
+    return indices, points
+
+
+
+
+
+
+
 E = np.array([[11,35],[5,16]])
 z = np.array([6,9])
 q, r = np.linalg.qr(E, mode='reduced')
 c = np.array([0,0])
 sigma = 1
-IntSum(E, c, sigma, 15, 0, TildeComp(q, r, c, z), r)
+zTilde = TildeComp(q,r,c,z)
+x, check = IntSum(E, c, sigma, 15, 0, TildeComp(q, r, c, z), r)
+print(check)
+print(zTilde)
+print(abs(0.0-zTilde[0]))
+print(abs(0.0-zTilde[0])**2)
+print(-(1/((sigma/r[0][0])**2)))
+print(-(1/((sigma/r[0][0])**2))*abs(0.0-zTilde[0])**2)
+
+# Dimension and extent of the lattice
+n_dim = 3
+extent = 10
+# Number of standard deviations for the cutoff
+n_dev = 15
+# Radius for the cutoff of the Gaussian
+r_cut = n_dev * sigma
+
+indices, lattice = create_lattice_and_indices(n_dim, extent)
+
+d = distance(lattice)
+print(d)
+print(d.shape)
+
+# The easiest way to get all of the numbers within a range in an array is to create an array of booleans
+points_in_range = copy.copy(lattice)
+
+points_in_range[ lattice >  r_cut ] = 0
+
+print(points_in_range)
+print(lattice.shape)
+
+
+
+
+
