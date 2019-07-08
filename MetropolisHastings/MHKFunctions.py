@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def TildeComp(q, r, mean, vec):
-    '''Computing the alternate vector.'''
+    """"Computing the alternate vector."""
 
     cPrime = np.dot(np.linalg.pinv(q), mean)
     tilde = []
@@ -66,7 +66,7 @@ def IntSum(basis, mean, var, cutoff, index, tilde, r):
         check.append([k,GaussOne(k, altvar, tilde[index])])
         k -= 1
 
-    return total, check
+    return total
 
 
 def IntProd(basis, mean, var, cutoff, tilde, r):
@@ -85,7 +85,11 @@ def acceptance(basis, mean, var, cutoff, q, r, oldvec, newvec):
     newvectilde = TildeComp(q, r, mean, newvec)
     num = IntProd(basis, mean, var, cutoff, newvectilde, r)
     denom = IntProd(basis, mean, var, cutoff, oldvectilde, r)
-    return min(1, (num/denom))
+    if denom == 0:
+        return 1
+    else:
+        return min(1, (num/denom))
+
 
 def create_lattice_and_indices(n_dim, extent):
     # This is a simple 1D lattice, can extend to more dimensions by simply iterating
@@ -96,11 +100,12 @@ def create_lattice_and_indices(n_dim, extent):
     indices = np.asarray([indices for _ in range(n_dim)]).T
     return indices, lattice
 
-def transform_lattice(lattice, basis):
-    n_dim = len(lattice)
 
-    for 
-    for index, point in enumerate( lattice ):
+#def transform_lattice(lattice, basis):
+ #   n_dim = len(lattice)
+
+  #  for
+   # for index, point in enumerate( lattice ):
 
 
 def distance(lattice, norm = 2):
@@ -128,6 +133,19 @@ def points_in_range(lattice, distance, r_cut):
     return indices, points
 
 
+# Try and implement klein sampler here, messy but ok
+def Klein(Basis, sigma, mean, q, r, vec, cutoff):
+    """Klein Sampler for implementation"""
+
+    x_tile = TildeComp(q, r, mean, vec)
+    for i in range(vec.size, 0, -1):
+        sigma_i = sigma / (r[i][i])
+
+
+
+
+
+
 
 
 
@@ -139,13 +157,18 @@ q, r = np.linalg.qr(E, mode='reduced')
 c = np.array([0,0])
 sigma = 1
 zTilde = TildeComp(q,r,c,z)
-x, check = IntSum(E, c, sigma, 15, 0, TildeComp(q, r, c, z), r)
-print(check)
-print(zTilde)
-print(abs(0.0-zTilde[0]))
-print(abs(0.0-zTilde[0])**2)
-print(-(1/((sigma/r[0][0])**2)))
-print(-(1/((sigma/r[0][0])**2))*abs(0.0-zTilde[0])**2)
+x = np.array([1,1])
+#print(zTilde)
+#print(r)
+#print(sigma/r[0][0])
+#print((r[0][0]**2)/(2*(sigma**2)))
+#print()
+#print(abs(-15.0-zTilde[0]))
+#print(abs(-15.0-zTilde[0])**2)
+#print(-(1/(2*((sigma/r[0][0])**2))))
+#print(-(1/(2*((sigma/r[0][0])**2)))*abs(-15.0-zTilde[0])**2)
+#print(math.exp(-(1/(2*((sigma/r[0][0])**2)))*abs(-15.0-zTilde[0])**2))
+print(acceptance(E,c,sigma,15,q,r,x,z))
 
 # Dimension and extent of the lattice
 n_dim = 3
@@ -157,17 +180,17 @@ r_cut = n_dev * sigma
 
 indices, lattice = create_lattice_and_indices(n_dim, extent)
 
-d = distance(lattice)
-print(d)
-print(d.shape)
+#d = distance(lattice)
+#print(d)
+#print(d.shape)
 
 # The easiest way to get all of the numbers within a range in an array is to create an array of booleans
-points_in_range = copy.copy(lattice)
+#points_in_range = copy.copy(lattice)
 
-points_in_range[ lattice >  r_cut ] = 0
+#points_in_range[ lattice >  r_cut ] = 0
 
-print(points_in_range)
-print(lattice.shape)
+#print(points_in_range)
+#print(lattice.shape)
 
 
 
