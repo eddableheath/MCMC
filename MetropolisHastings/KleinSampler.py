@@ -2,9 +2,6 @@
 
 import numpy as np
 import math
-import copy
-import random as rn
-import pandas as pd
 
 
 def Gauss(j, var, mean=0):
@@ -15,11 +12,11 @@ def Gauss(j, var, mean=0):
 def tilde_gen(cPrime, index, r, vec):
     """Generating the individual tilde components"""
 
-    if index < cPrime.size:
+    if index <= cPrime.size:
         s = 0
-        for j in range(index+1,cPrime.size):
+        for j in range(index+1, cPrime.size):
             s += r[index][j] * vec[j]
-        return (cPrime[index] -  s)/(r[index][index])
+        return (cPrime[index] - s)/(r[index][index])
     else:
         return cPrime[index]/(r[index][index])
 
@@ -62,7 +59,7 @@ def IntProbGen(mean, var, cutoff):
     j = round(mean)
     while OneDCutoffCheck(mean, var, cutoff, j) == True:
         Pj = Gauss(j, var, mean)/N
-        dist.append([j,Pj])
+        dist.append([j, Pj])
         j += 1
     k = round(mean) - 1
     while OneDCutoffCheck(mean, var, cutoff, k) == True:
@@ -80,17 +77,42 @@ def KleinSampler(basis, var, mean, cutoff):
     q, r = np.linalg.qr(basis, mode='reduced')
     cPrime = np.dot(np.linalg.pinv(q),mean)
     x = np.zeros(mean.size)
-    for i in range(mean.size-1, 0, -1):
+    for i in range(mean.size-1, -1, -1):
         i_tilde = tilde_gen(cPrime, i, r, x)
-        sigma = var / r[i][i]
-        probs = IntProbGen(i_tilde, sigma, cutoff)
+        print('Tilde: ', i_tilde)
+        sigma = var / abs(r[i][i])
+        print('r-val: ', r[i][i])
+        print('alt-cut?: ', cutoff * abs(r[i][i]))
+        alt_cut = cutoff * abs(r[i][i])
+        print('Sigma: ', sigma)
+        probs = IntProbGen(i_tilde, sigma, alt_cut)
+        print('Probs: ', probs)
         x[i] = np.random.choice(probs[:, 0], 1, p=probs[:, 1])
-    return (x, np.dot(basis, x))
+    return np.dot(basis, x)
 
 
-B = np.array([[1,0],[0,1]])
+
+a = math.sqrt(3)
+B = np.array([[2, -1, 0, 0, 0, 0, 0, 1/2],
+              [0, 1, -1, 0, 0, 0, 0, 1/2],
+              [0, 0, 1, -1, 0, 0, 0, 1/2],
+              [0, 0, 1, -1, 0, 0, 0, 1/2],
+              [0, 0, 0, 1, -1, 0, 0, 1/2],
+              [0, 0, 0, 0, 1, -1, 0, 1/2],
+              [0, 0, 0, 0, 0, 1, -1, 1/2],
+              [0, 0, 0, 0, 0, 0, 1, 1/2]])
+
+D = np.array([[1/2, 1/2],
+              [a/2, -a/2]])
+
+E = np.array([[11,35],[5,16]])
+BE = np.matmul(E, D)
+
 s = 1
-c = np.array([3.5,-2.9])
+c = np.array([0, 0])
 L = 15
 
-print(KleinSampler(B, s, c, L))
+q, r = np.linalg.qr(BE, mode='reduced')
+#print(q)
+#print(r)
+print(KleinSampler(BE, s, c, L))
