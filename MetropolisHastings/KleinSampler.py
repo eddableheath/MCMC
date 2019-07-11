@@ -9,6 +9,7 @@ def Gauss(j, var, mean=0):
 
     return math.exp(-(1/(2*(var**2)))*(abs(j-mean)**2))
 
+
 def tilde_gen(cPrime, index, r, vec):
     """Generating the individual tilde components"""
 
@@ -37,15 +38,15 @@ def IntSum(mean, var, cutoff):
 
     total = 0
     j = round(mean)
-    check = []
+    # check = []
     while OneDCutoffCheck(mean, var, cutoff, j):
         total += Gauss(j, var, mean)
-        check.append([j, Gauss(j, var, mean)])
+        # check.append([j, Gauss(j, var, mean)])
         j += 1
     k = np.around(mean) - 1
     while OneDCutoffCheck(mean, var, cutoff, k):
         total += Gauss(k, var, mean)
-        check.append([k,Gauss(k, var, mean)])
+        # check.append([k,Gauss(k, var, mean)])
         k -= 1
 
     return total
@@ -71,24 +72,25 @@ def IntProbGen(mean, var, cutoff):
     return distro
 
 
-def KleinSampler(basis, var, mean, cutoff):
+def KleinSampler(basis, r, var, meanPrime, cutoff):
     """Klein sampler implementation"""
 
-    q, r = np.linalg.qr(basis, mode='reduced')
-    cPrime = np.dot(np.linalg.pinv(q),mean)
-    x = np.zeros(mean.size)
-    for i in range(mean.size-1, -1, -1):
-        i_tilde = tilde_gen(cPrime, i, r, x)
-        print('Tilde: ', i_tilde)
+    x = np.zeros(meanPrime.size)
+    print(x)
+    for i in range(meanPrime.size-1, -1, -1):
+        i_tilde = tilde_gen(meanPrime, i, r, x)
+        # print('Tilde: ', i_tilde)
         sigma = var / abs(r[i][i])
-        print('r-val: ', r[i][i])
-        print('alt-cut?: ', cutoff * abs(r[i][i]))
+        # print('r-val: ', r[i][i])
+        # print('alt-cut?: ', cutoff * abs(r[i][i]))
+        # Scaling for cutoff to ensure lattice points to pick from
         alt_cut = cutoff * abs(r[i][i])
-        print('Sigma: ', sigma)
+        # print('Sigma: ', sigma)
         probs = IntProbGen(i_tilde, sigma, alt_cut)
-        print('Probs: ', probs)
+        # print('Probs: ', probs)
         x[i] = np.random.choice(probs[:, 0], 1, p=probs[:, 1])
-    return np.dot(basis, x)
+        print(x)
+    return [x, np.dot(basis, x)]
 
 
 
@@ -105,14 +107,19 @@ B = np.array([[2, -1, 0, 0, 0, 0, 0, 1/2],
 D = np.array([[1/2, 1/2],
               [a/2, -a/2]])
 
-E = np.array([[11,35],[5,16]])
+E = np.array([[11, 35], [5, 16]])
 BE = np.matmul(E, D)
+
+C = np.array([[-9, 34], [5, -19]])
+DC = np.matmul(C, D)
 
 s = 1
 c = np.array([0, 0])
 L = 15
 
-q, r = np.linalg.qr(BE, mode='reduced')
-#print(q)
-#print(r)
-print(KleinSampler(BE, s, c, L))
+
+q, r = np.linalg.qr(D, mode='reduced')
+#Primec = np.dot(np.linalg.pinv(q), c)
+#KleinSampler(D, r, s, Primec, L)
+
+print(IntProbGen(0, 1, 15))

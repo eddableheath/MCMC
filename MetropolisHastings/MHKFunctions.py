@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def TildeComp(q, r, mean, vec):
-    """"Computing the alternate vector."""
+    """"Computing the scaled vector"""
 
     cPrime = np.dot(np.linalg.pinv(q), mean)
     tilde = []
@@ -37,54 +37,53 @@ def Gauss(basis, mean, var, vec):
     return math.exp(-(1/(2*(var**2)))*((np.linalg.norm(k))**2))
 
 
-def OneDCutoffCheck(mean, var, cutoff, index, value):
+def OneDCutoffCheck(mean, var, cutoff, value):
     '''Checking that the sum over the integers stays within the chosen cutoff'''
 
-    lower = mean[index] - (cutoff*var)
-    upper = mean[index] + (cutoff*var)
+    lower = mean - (cutoff*var)
+    upper = mean + (cutoff*var)
     if value >= lower and value <= upper:
         return True
     else:
         return False
 
 
-def IntSum(basis, mean, var, cutoff, index, tilde, r):
+def IntSum(mean, var, cutoff):
     '''Sum of Gaussians over integer values'''
 
     total = 0
-    mu = np.linalg.solve(basis, mean)
-    altvar = var/(r[index][index])
-    j = np.around(mu)[index]
+    j = round(mean)
     check = []
-    while OneDCutoffCheck(mu, var, cutoff, index, j):
-        total += GaussOne(j, altvar, tilde[index])
-        check.append([j, GaussOne(j, altvar, tilde[index])])
+    while OneDCutoffCheck(mean, var, cutoff, j):
+        total += GaussOne(j, var, mean)
+        check.append([j, GaussOne(j, var, mean)])
         j += 1
-    k = np.around(mu)[index] - 1
-    while OneDCutoffCheck(mu, var, cutoff, index, k):
-        total += GaussOne(k, altvar, tilde[index])
-        check.append([k,GaussOne(k, altvar, tilde[index])])
+    k = round(mean) - 1
+    while OneDCutoffCheck(mean, var, cutoff, k):
+        total += GaussOne(k, var, mean)
+        check.append([k,GaussOne(k, var, mean)])
         k -= 1
 
     return total
 
 
-def IntProd(basis, mean, var, cutoff, tilde, r):
+def IntProd(mean, var, cutoff, r):
     '''Product of sum of Gaussians'''
 
     total = 1
-    for i in range(0, tilde.size):
-        total *= IntSum(basis, mean, var, cutoff, i, tilde, r)
+    for i in range(0, mean.size):
+        altvar = var / r[i][i]
+        total *= IntSum(mean[i], altvar, cutoff)
     return total
 
 
-def acceptance(basis, mean, var, cutoff, q, r, oldvec, newvec):
+def acceptance(mean, var, cutoff, q, r, oldvec, newvec):
     '''Computing the acceptance ratio'''
 
     oldvectilde = TildeComp(q, r, mean, oldvec)
     newvectilde = TildeComp(q, r, mean, newvec)
-    num = IntProd(basis, mean, var, cutoff, newvectilde, r)
-    denom = IntProd(basis, mean, var, cutoff, oldvectilde, r)
+    num = IntProd(newvectilde, var, cutoff, r)
+    denom = IntProd(oldvectilde, var, cutoff, r)
     if denom == 0:
         return 1
     else:
@@ -96,24 +95,7 @@ def acceptance(basis, mean, var, cutoff, q, r, oldvec, newvec):
 
 
 
-E = np.array([[11,35],[5,16]])
-z = np.array([6,9])
-q, r = np.linalg.qr(E, mode='reduced')
-c = np.array([0,0])
-sigma = 1
-zTilde = TildeComp(q,r,c,z)
-x = np.array([1,1])
-#print(zTilde)
-#print(r)
-#print(sigma/r[0][0])
-#print((r[0][0]**2)/(2*(sigma**2)))
-#print()
-#print(abs(-15.0-zTilde[0]))
-#print(abs(-15.0-zTilde[0])**2)
-#print(-(1/(2*((sigma/r[0][0])**2))))
-#print(-(1/(2*((sigma/r[0][0])**2)))*abs(-15.0-zTilde[0])**2)
-#print(math.exp(-(1/(2*((sigma/r[0][0])**2)))*abs(-15.0-zTilde[0])**2))
-print(acceptance(E,c,sigma,15,q,r,x,z))
+
 
 
 

@@ -4,6 +4,7 @@ from MetropolisHastings import MHKFunctions as FN
 from MetropolisHastings import KleinSampler as KS
 import numpy as np
 import math
+import random
 
 
 def MixTime(basis, var, mean, accuracy, cutoff):
@@ -13,4 +14,46 @@ def MixTime(basis, var, mean, accuracy, cutoff):
     # finding the value of the gaussian at each point?!
     return
 
-def IndepMHK(Basis, var, mean, cutoff, )
+
+def IndepMHK(basis, var, mean, cutoff, IntInitial, initial, runtime):
+    """The independent MHK lattice Gaussian sampler"""
+
+    Q, R = np.linalg.qr(basis, mode='reduced')
+    cPrime = np.dot(np.linalg.pinv(Q), mean)
+    # Xn contains markov chain of v \in Z^n
+    Xn = [IntInitial]
+    # Yn contains markov chain of v \in \Lambda
+    Yn = [initial]
+    for t in range(runtime):
+        current = [Xn[t], Yn[t]]
+        new = KS.KleinSampler(basis, R, var, cPrime, cutoff)
+        acc = FN.acceptance(mean, var, cutoff, Q, R, current[0], new[0])
+        u = random.random()
+        print('acceptange: ', [u, acc])
+        if u <= acc:
+            Xn.append(new[0])
+            Yn.append(new[1])
+        else:
+            Xn.append(current[0])
+            Yn.append(current[1])
+    return [Yn, Yn[-1]]
+
+
+
+# Testing
+a = math.sqrt(3)
+B = np.array([[1/2, 1/2],
+              [a/2, -a/2]])
+s = 1
+c = np.array([0.5, -0.5])
+L = 15
+m, n = np.linalg.qr(B, mode='reduced')
+Primec = np.dot(np.linalg.pinv(m), c)
+print(n)
+print(m)
+
+init = KS.KleinSampler(B, n, s, Primec, L)
+results = IndepMHK(B, s, c, L, init[0], init[1], 15)[0]
+for i in results:
+    print(i)
+print(Primec)
