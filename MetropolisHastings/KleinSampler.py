@@ -76,7 +76,7 @@ def KleinSampler(basis, r, var, meanPrime, cutoff):
     """Klein sampler implementation"""
 
     x = np.zeros(meanPrime.size)
-    print(x)
+    # print(x)
     for i in range(meanPrime.size-1, -1, -1):
         i_tilde = tilde_gen(meanPrime, i, r, x)
         # print('Tilde: ', i_tilde)
@@ -89,7 +89,7 @@ def KleinSampler(basis, r, var, meanPrime, cutoff):
         probs = IntProbGen(i_tilde, sigma, alt_cut)
         # print('Probs: ', probs)
         x[i] = np.random.choice(probs[:, 0], 1, p=probs[:, 1])
-        print(x)
+        # print(x)
     return [x, np.dot(basis, x)]
 
 
@@ -122,4 +122,4 @@ q, r = np.linalg.qr(D, mode='reduced')
 #Primec = np.dot(np.linalg.pinv(q), c)
 #KleinSampler(D, r, s, Primec, L)
 
-print(IntProbGen(0, 1, 15))
+

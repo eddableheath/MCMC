@@ -24,19 +24,22 @@ def IndepMHK(basis, var, mean, cutoff, IntInitial, initial, runtime):
     Xn = [IntInitial]
     # Yn contains markov chain of v \in \Lambda
     Yn = [initial]
+    # Acceptance for testing
+    acceptance = [1]
     for t in range(runtime):
         current = [Xn[t], Yn[t]]
         new = KS.KleinSampler(basis, R, var, cPrime, cutoff)
         acc = FN.acceptance(mean, var, cutoff, Q, R, current[0], new[0])
         u = random.random()
-        print('acceptange: ', [u, acc])
         if u <= acc:
             Xn.append(new[0])
             Yn.append(new[1])
+            acceptance.append(acc)
         else:
             Xn.append(current[0])
             Yn.append(current[1])
-    return [Yn, Yn[-1]]
+            acceptance.append(acc)
+    return [acceptance, Yn, Yn[-1]]
 
 
 
@@ -49,11 +52,6 @@ c = np.array([0.5, -0.5])
 L = 15
 m, n = np.linalg.qr(B, mode='reduced')
 Primec = np.dot(np.linalg.pinv(m), c)
-print(n)
-print(m)
 
 init = KS.KleinSampler(B, n, s, Primec, L)
-results = IndepMHK(B, s, c, L, init[0], init[1], 15)[0]
-for i in results:
-    print(i)
-print(Primec)
+results = IndepMHK(B, s, c, L, init[0], init[1], 40)[0]
