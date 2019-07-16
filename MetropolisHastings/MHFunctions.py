@@ -2,14 +2,11 @@
 
 
 import numpy as np
-import pandas as pd
 import math
 
-rootthree = np.sqrt(3)
 
-B1 = np.array([[1/2, rootthree],
-               [1/2, -rootthree]])
-
-q, r = np.linalg.qr(B1, mode='reduced')
-
-print(q)
+def MHacceptance(basis, var, mean, oldvec, newvec):
+    a = np.dot(basis, oldvec) - mean
+    b = np.dot(basis, newvec) - mean
+    poly = (np.linalg.norm(a)**2) - (np.linalg.norm(b)**2)
+    return min(1, math.exp(poly / (2 * (var**2))))
