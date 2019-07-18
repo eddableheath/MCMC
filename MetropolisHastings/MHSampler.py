@@ -16,9 +16,12 @@ def SymMHSampler(basis, var, mean, cutoff, InitInitial, initial, runtime):
     Xn = [InitInitial]
     # Yn is chain in Lambda
     Yn = [initial]
+    # Lag for autocorrelation
+    l = 1
+    lag = [0]
     # Acceptance for testing
-    acceptance = [1]
-    accRate = []
+    # acceptance = [1]
+    # accRate = []
     for t in range(runtime):
         current = [Xn[t], Yn[t]]
         new_centre = np.dot(np.linalg.pinv(Q),Yn[t])
@@ -28,27 +31,14 @@ def SymMHSampler(basis, var, mean, cutoff, InitInitial, initial, runtime):
         if u <= acc:
             Xn.append(new[0])
             Yn.append(new[1])
-            acceptance.append(acc)
-            accRate.append(1)
+            lag.append(l)
+            # acceptance.append(acc)
+            # accRate.append(1)
         else:
             Xn.append(current[0])
             Yn.append(current[1])
-            acceptance.append(acc)
-            accRate.append(0)
-    return [acceptance, Yn, Yn[-1], accRate]
-
-
-# Testing
-a = math.sqrt(3)
-B = np.array([[1/2, 1/2],
-              [a/2, -a/2]])
-s = 1.106
-c = np.array([0.5, -0.5])
-L = 15
-
-e = np.array([0, 0])
-
-results = SymMHSampler(B, s, c, L, e, e, 100)[3]
-
-
-print(st.mean(results))
+            lag.append(l)
+            # acceptance.append(acc)
+            # accRate.append(0)
+        l += 1
+    return [lag, Yn, Yn[-1]]

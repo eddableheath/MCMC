@@ -85,6 +85,6 @@ def autocorrelate(x):
     """ Autocorrelation of a set """
 
     results = np.correlate(x, x, mode='full')
-    return results[results.size // 2]
+    return results[results.size // 2:]
 
 
