@@ -5,6 +5,7 @@ from MetropolisHastings import KleinSampler as KS
 import numpy as np
 import math
 import random
+import statistics as st
 
 
 def MixTime(basis, var, mean, accuracy, cutoff):
@@ -47,7 +48,7 @@ def IndepMHK(basis, var, mean, cutoff, IntInitial, initial, runtime):
 a = math.sqrt(3)
 B = np.array([[1/2, 1/2],
               [a/2, -a/2]])
-s = 1
+s = 212
 c = np.array([0.5, -0.5])
 L = 15
 m, n = np.linalg.qr(B, mode='reduced')
@@ -55,3 +56,5 @@ Primec = np.dot(np.linalg.pinv(m), c)
 
 init = KS.KleinSampler(B, n, s, Primec, L)
 results = IndepMHK(B, s, c, L, init[0], init[1], 40)[0]
+
+print(st.mean(results))
