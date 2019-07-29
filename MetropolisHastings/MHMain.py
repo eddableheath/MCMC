@@ -37,7 +37,7 @@ B7 = np.matmul(np.array([[-5, -13],
                         [-3, -8]]), B)
 B8 = np.matmul(np.matmul(Bases.UniMod['b'], Bases.UniMod['e']), B)
 
-results = SP.SymMHSampler(B4, s, c, L, e, e, 10000)[1]
+results = SP.SymMHSampler(B, s, c, L, e, e, 500)[1]
 
 r = 0
 prelim = {}
