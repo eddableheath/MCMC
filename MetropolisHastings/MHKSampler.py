@@ -48,7 +48,7 @@ def IndepMHK(basis, var, mean, cutoff, IntInitial, initial, runtime):
 a = math.sqrt(3)
 B = np.array([[1/2, 1/2],
               [a/2, -a/2]])
-s = 212
+s = 0.25
 c = np.array([0.5, -0.5])
 L = 15
 m, n = np.linalg.qr(B, mode='reduced')

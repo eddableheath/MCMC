@@ -13,7 +13,7 @@ b = np.array([[1/2, math.sqrt(3)/2],
               [1/2, -math.sqrt(3)/2]])
 balt = np.array([[1, 0],
                  [0, 1]])
-var = 1
+var = 100
 cutoff = 15
 m = pi.pick_mean(2)
 v = pi.pick_inital(b, 2, m, var, cutoff)
