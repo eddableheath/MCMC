@@ -53,6 +53,15 @@ for entry in prelim:
     x.append(prelim[entry][0])
     y.append(prelim[entry][1])
 
+xdist = []
+ydist = []
+
+for entry in x:
+    xdist.append(np.linalg.norm(entry - c))
+
+for entry in y:
+    ydist.append(np.linalg.norm(entry - c))
+
 xACF = fn.autocorrelate(x)
 NormxACF = xACF / float(xACF.max())
 yACF = fn.autocorrelate(y)
@@ -60,6 +69,9 @@ NormyACF = yACF / float(yACF.max())
 lag = list(range(0,len(xACF)))
 
 
+plt.plot(lag, xdist, '-y')
+plt.plot(lag, ydist, '-k')
+plt.show()
 plt.plot(x, y, '-y')
 plt.plot(cx, cy, 'ko')
 plt.show()
