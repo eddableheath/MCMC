@@ -104,22 +104,30 @@ B = np.array([[2, -1, 0, 0, 0, 0, 0, 1/2],
               [0, 0, 0, 0, 0, 1, -1, 1/2],
               [0, 0, 0, 0, 0, 0, 1, 1/2]])
 
-D = np.array([[1/2, 1/2],
-              [a/2, -a/2]])
+UniMod = np.array([[-5, 3, -27, -43, 11, -86, -365, 1456],
+                   [-2, 1, -10, -15, 4, -32, -132, 526],
+                   [-1, -2, 6, 22, -4, 20, 128, -514],
+                   [-5, -3, -4, 22, 0, -21, 39, -178],
+                   [0, 0, 5, 13, -4, 23, 99, -387],
+                   [-5, 5, -30, -50, 8, -76, -383, 1553],
+                   [-2, -3, 5, 32, -7, 20, 163, -658],
+                   [-5, -1, -14, -5, 3, -47, -131, 511]])
 
-E = np.array([[11, 35], [5, 16]])
-BE = np.matmul(E, D)
+BBetter = np.matmul(UniMod, B)
 
-C = np.array([[-9, 34], [5, -19]])
-DC = np.matmul(C, D)
 
-s = 1
-c = np.array([0, 0])
+
+s = 9.836
+c = np.array([0, 0, 0, 0, 0, 0, 0, 0])
 L = 15
 
+q, r = np.linalg.qr(BBetter, mode='reduced')
 
-q, r = np.linalg.qr(D, mode='reduced')
-#Primec = np.dot(np.linalg.pinv(q), c)
-#KleinSampler(D, r, s, Primec, L)
+
+#q, r = np.linalg.qr(D, mode='reduced')
+Primec = np.dot(np.linalg.pinv(q), c)
+K = KleinSampler(BBetter, r, s, Primec, L)
+#print(np.linalg.norm(K[0] - c))
+#print(np.linalg.norm(K[1] - c))
 
 

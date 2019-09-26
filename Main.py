@@ -13,10 +13,10 @@ b = np.array([[1/2, math.sqrt(3)/2],
               [1/2, -math.sqrt(3)/2]])
 balt = np.array([[1, 0],
                  [0, 1]])
-var = 100
+var = 1.106
 cutoff = 15
 m = pi.pick_mean(2)
-v = pi.pick_inital(b, 2, m, var, cutoff)
+v = pi.pick_inital(b, 2, m, 20, cutoff)
 
 # print(m)
 # print(v)
@@ -47,7 +47,13 @@ NormyACF = yACF / float(yACF.max())
 #print(x_results)
 #print(y_results)
 
+xdist = []
+ydist = []
+for entry in x_results:
+    xdist.append(np.linalg.norm(entry - m))
 
+for entry in y_results:
+    ydist.append(np.linalg.norm(entry - m))
 
 plt.plot(lag, NormxACF, '-k')
 plt.ylabel('Autocorrelation')

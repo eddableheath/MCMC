@@ -9,6 +9,7 @@ import Functions as fn
 import matplotlib.pyplot as plt
 import Bases
 import Pickers as PS
+import MetropolisHastings.KleinSampler as ks
 
 
 # Testing
@@ -21,7 +22,7 @@ L = 15
 cpoints = np.ndarray.tolist(c)
 cx = cpoints[0]
 cy = cpoints[1]
-e = np.array([0, 0])
+Initial = np.array([6, -6])
 
 B2 = np.matmul(np.array([[0, 1],
                          [-1, 5]]), B)
@@ -37,7 +38,15 @@ B7 = np.matmul(np.array([[-5, -13],
                         [-3, -8]]), B)
 B8 = np.matmul(np.matmul(Bases.UniMod['b'], Bases.UniMod['e']), B)
 
-results = SP.SymMHSampler(B3, s, c, L, e, e, 10000)[1]
+# Klein sampler initial point picking
+Basis = B
+q, r = np.linalg.qr(Basis, mode='reduced')
+PrimeMean = np.dot(np.linalg.pinv(q), c)
+Start = ks.KleinSampler(Basis, r, 20, PrimeMean, 15)
+
+LatIntial = np.dot(B, Initial)
+
+results = SP.SymMHSampler(B, s, c, L, Start[0], Start[1], 1000, 5)[1]
 
 r = 0
 prelim = {}
@@ -70,12 +79,13 @@ lag = list(range(0,len(xACF)))
 
 
 plt.plot(lag, xdist, '-y')
+plt.show()
 plt.plot(lag, ydist, '-k')
 plt.show()
 plt.plot(x, y, '-y')
 plt.plot(cx, cy, 'ko')
 plt.show()
-plt.plot(lag, NormxACF, '-k')
-plt.show()
-plt.plot(lag, NormyACF, '-y')
-plt.show()
+#plt.plot(lag, NormxACF, '-k')
+#plt.show()
+#plt.plot(lag, NormyACF, '-y')
+#plt.show()
